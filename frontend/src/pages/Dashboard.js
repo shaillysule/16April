@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { parse } from 'postcss';
+import {Link}from 'react-router-dom';
 
 // Register the chart components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -162,35 +163,40 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 flex">
       {/* Sidebar */}
-      <motion.aside
-        initial={{ x: -250 }}
-        animate={{ x: isSidebarOpen ? 0 : -250 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="w-64 bg-white shadow-md fixed h-full z-50 flex flex-col justify-between border-r border-gray-300"
-      >
-        <div className="p-6">
-          <h2 className="text-2xl font-bold text-blue-600">StockMaster</h2>
-          <nav className="mt-8 space-y-4">
-            {["Dashboard", "Portfolio", "Stocks", "Analytics"].map((item, index) => (
-              <motion.a
-                key={index}
-                href="#"
-                whileHover={{ scale: 1.05 }}
-                className="block p-3 rounded-md text-gray-800 hover:bg-gray-200 transition"
-              >
-                {item}
-              </motion.a>
-            ))}
-          </nav>
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          className="w-full bg-red-500 text-white p-3 rounded-md hover:bg-red-600 transition"
-          onClick={handleLogout}
-        >
-          Logout
-        </motion.button>
-      </motion.aside>
+      
+
+<motion.aside
+  initial={{ x: -250 }}
+  animate={{ x: isSidebarOpen ? 0 : -250 }}
+  transition={{ duration: 0.3, ease: "easeInOut" }}
+  className="w-64 bg-white shadow-md fixed h-full z-50 flex flex-col justify-between border-r border-gray-300"
+>
+  <div className="p-6">
+    <h2 className="text-2xl font-bold text-blue-600">StockMaster</h2>
+    <nav className="mt-8 space-y-4">
+      <Link to="/dashboard" className="block p-3 rounded-md text-gray-800 hover:bg-gray-200 transition">
+        Dashboard
+      </Link>
+      <Link to="/portfolio" className="block p-3 rounded-md text-gray-800 hover:bg-gray-200 transition">
+        Portfolio
+      </Link>
+      <Link to="/stocks" className="block p-3 rounded-md text-gray-800 hover:bg-gray-200 transition">
+        Stocks
+      </Link>
+      <Link to="/analytics" className="block p-3 rounded-md text-gray-800 hover:bg-gray-200 transition">
+        Analytics
+      </Link>
+    </nav>
+  </div>
+
+  <motion.button
+    whileHover={{ scale: 1.1 }}
+    className="w-full bg-red-500 text-white p-3 rounded-md hover:bg-red-600 transition"
+    onClick={handleLogout}
+  >
+    Logout
+  </motion.button>
+</motion.aside>
 
       {/* Main Content */}
       <main className={`flex-1 p-6 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-0'}`}>

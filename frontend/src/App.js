@@ -1,8 +1,7 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-// import StocksOverview from './pages/StockOverview';
-// import Analytics from './pages/Analytics';
+import Portfolio from './pages/Portfolio';  // ✅ Import Portfolio
 
 function App() {
   return (
@@ -10,8 +9,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        {/* <Route path="/stocks" element={<StocksOverview />} />
-        <Route path="/analytics" element={<Analytics />} /> */}
+        <Route path="/portfolio" element={<Portfolio />} />  {/* ✅ Ensure lowercase */}
       </Routes>
     </Router>
   );
