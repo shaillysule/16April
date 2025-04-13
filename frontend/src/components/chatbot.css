@@ -69,3 +69,39 @@
   .input-form button:hover {
     background: #0056b3;
   }
+  .analytics-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .analytics-section{
+    background:black;
+    color: white;
+  }
+  @media (max-width: 768px) {
+    .analytics-content {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .chatbot-section {
+    display: flex;
+    flex-direction: column;
+  }
+  .chatbot-input {
+
+    background: #333; /* Darker input field */
+
+    color: white; /* Input text color */
+
+}
+
+
+.chatbot-message {
+
+    background: #444; /* Different shade for messages */
+
+    color: white; /* Message text color */
+
+}

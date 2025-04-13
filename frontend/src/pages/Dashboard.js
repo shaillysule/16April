@@ -22,12 +22,12 @@ const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [trendingStocks, setTrendingStocks] = useState([]);
   const [news, setNews] = useState([]);
-  const [userRole, setUserRole] = useState("user");
+  const [userRole, setUserRole] = useState("userRole");
   const [mockWatchlist, setMockWatchlist] = useState([]);
   const [stockData, setStockData] = useState(null); // initially null
   const [showChatbot, setShowChatbot]=useState(false);
   const [isSubscribed,setIsSubscribed]=useState(false);
-
+   
   const handleLogout = () => {
     localStorage.clear();
     window.location.href = "/";
@@ -135,14 +135,9 @@ console.error('subscription check failed:',error);
             <Link to="/stocks" className="block p-3 rounded-md hover:bg-gray-200">
               Stocks
             </Link>
-            <div>
-              
-               
-                <div className="pl-3 mt-2">
-                  <Chatbot />
-                </div>
-             
-            </div>
+            <Link to="/analytics" className="block p-3 rounded-md hover:bg-gray-200">
+             analytics
+            </Link>
             {userRole === "admin" && (
               <Link to="/admin" className="block p-3 rounded-md hover:bg-gray-200 text-red-600">
                 Admin Panel

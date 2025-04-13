@@ -19,7 +19,8 @@ function App() {
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/stocks" element={<StockDashboard />} />
         <Route path="/analytics"element={<Analytics/>}/>
-        <Route path="/stock/detail/:symbol" element={<StockDetail />} />
+<Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPanel /></ProtectedRoute>} 
+/>        <Route path="/stock/detail/:symbol" element={<StockDetail />} />
         <Route
           path="/admin"
           element={role === "admin" ? <AdminPanel /> : <Navigate to="/" replace />}

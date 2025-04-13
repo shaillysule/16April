@@ -12,23 +12,24 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", {
         email,
         password,
       });
-
+      
       const { token, role, name, email: userEmail, isSubscribed, freeAITrials } = res.data;
-
+      
+      // Store user data in localStorage - change "role" to "userRole" to match ProtectedRoute
       localStorage.setItem("token", token);
-      localStorage.setItem("role", role);
+      localStorage.setItem("userRole", role); // Changed from "role" to "userRole"
       localStorage.setItem("name", name);
       localStorage.setItem("email", userEmail);
       localStorage.setItem("isSubscribed", isSubscribed);
       localStorage.setItem("freeAITrials", freeAITrials);
-
-      navigate(role === "admin" ? "/admin" : "/portfolio");
+      
+      // This redirection logic looks good - redirects to admin or dashboard based on role
+      navigate(role === "admin" ? "/admin" : "/dashboard");
     } catch (err) {
       console.error("Login error:", err);
       setError("Invalid email or password");
