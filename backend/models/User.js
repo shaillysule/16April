@@ -1,10 +1,30 @@
+// backend/models/User.js
 const mongoose = require('mongoose');
 
+const stockSchema = new mongoose.Schema({
+  stockSymbol: String,
+  quantity: Number,
+  avgBuyPrice: Number,
+});
+
 const userSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  isSubscribed: { type: Boolean, default: false },
-  freeAITrials: { type: Number, default: 3 },
+  name: String,
+  email: String,
+  password: String,
+  loginCount: {
+    type: Number,
+    default: 0
+  },
+  subscriptionActive: {
+    type: Boolean,
+    default: false
+  },
+  portfolio: [stockSchema],
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user'
+  }
 });
 
 module.exports = mongoose.model('User', userSchema);
