@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom"; // Add this import
 
 const Login = () => {
   const navigate = useNavigate();
@@ -9,33 +10,40 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
-      
-      const { token, role, name, email: userEmail, isSubscribed, freeAITrials } = res.data;
-      
-      // Store user data in localStorage - change "role" to "userRole" to match ProtectedRoute
-      localStorage.setItem("token", token);
-      localStorage.setItem("userRole", role); // Changed from "role" to "userRole"
-      localStorage.setItem("name", name);
-      localStorage.setItem("email", userEmail);
-      localStorage.setItem("isSubscribed", isSubscribed);
-      localStorage.setItem("freeAITrials", freeAITrials);
-      
-      // This redirection logic looks good - redirects to admin or dashboard based on role
-      navigate(role === "admin" ? "/admin" : "/dashboard");
-    } catch (err) {
-      console.error("Login error:", err);
-      setError("Invalid email or password");
-    }
-  };
+// In Login.js (handleSubmit function)
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  try {
+    const res = await axios.post("http://localhost:5000/api/auth/login", {
+      email,
+      password,
+    });
+    
+    // Properly access the values from response
+    const token = res.data.token;
+    const userRole = res.data.role || "user";
+    const userName = res.data.name || "";
+    const userEmail = res.data.email || email;
+    const isUserSubscribed = res.data.isSubscribed || false;
+    const userFreeAITrials = res.data.freeAITrials || 0;
 
+    // Store in localStorage
+    localStorage.setItem("token", token);
+    localStorage.setItem("userRole", userRole);
+    localStorage.setItem("name", userName);
+    localStorage.setItem("email", userEmail);
+    localStorage.setItem("isSubscribed", String(isUserSubscribed));
+    localStorage.setItem("freeAITrials", String(userFreeAITrials));
+    
+    console.log('Login successful', res.data);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    navigate(userRole === "admin" ? "/admin" : "/dashboard");
+  } catch (err) {
+    console.error("Login error:", err.response?.data || err.message);
+    setError("Invalid email or password");
+  }
+};
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
@@ -69,6 +77,13 @@ const Login = () => {
             Login
           </button>
         </form>
+        {/* Add the Sign Up link here */}
+        <p className="text-center mt-4">
+          Need an account? 
+          <Link to="/signup" className="text-blue-500 hover:underline ml-1">
+            Sign Up
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-// backend/models/User.js
 const mongoose = require('mongoose');
 
 const stockSchema = new mongoose.Schema({
@@ -15,16 +14,24 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  subscriptionActive: {
-    type: Boolean,
-    default: false
-  },
-  portfolio: [stockSchema],
   role: {
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
-  }
+  },
+  subscriptionActive: {
+    type: Boolean,
+    default: false
+  },
+  portfolio: [
+    {
+      stockSymbol: { type: String, required: true },
+      quantity: { type: Number, required: true },
+      avgBuyPrice: { type: Number, required: true },
+      takeProfit: { type: Number }, // Optional, user may skip
+      stopLoss: { type: Number }    // Optional, user may skip
+    }
+  ]
 });
 
 module.exports = mongoose.model('User', userSchema);

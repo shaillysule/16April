@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import axios from 'axios';
-
+// import axios from 'axios';
+import api from '../api';
 const Portfolio = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -36,15 +36,13 @@ const Portfolio = () => {
           return;
         }
 
-        const res = await axios.get('http://localhost:5000/api/portfolio', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get('/portfolio');
 
         const analyzed = generateRecommendation(analyzePerformance(res.data.portfolio));
         setPortfolioData(analyzed);
       } catch (err) {
         console.error('Error fetching portfolio:', err);
-        
+      
         // Provide mock data if API fails
         const mockPortfolio = [
           { symbol: 'AAPL', quantity: 10, avgBuyPrice: 180.45 },
