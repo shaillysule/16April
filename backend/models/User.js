@@ -1,37 +1,51 @@
 const mongoose = require('mongoose');
 
+// Optional: You can define this separately if you want to reuse it later,
+// but it's currently embedded directly into the userSchema
 const stockSchema = new mongoose.Schema({
-  stockSymbol: String,
-  quantity: Number,
-  avgBuyPrice: Number,
+  stockSymbol: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  avgBuyPrice: { type: Number, required: true },
+  takeProfit: { type: Number }, // Optional
+  stopLoss: { type: Number }    // Optional
 });
 
-const userSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  password: String,
-  loginCount: {
-    type: Number,
-    default: 0
+
+
+const UserSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  name: {
+    type: String,
+    default: ''
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
     default: 'user'
   },
   subscriptionActive: {
     type: Boolean,
     default: false
   },
-  portfolio: [
-    {
-      stockSymbol: { type: String, required: true },
-      quantity: { type: Number, required: true },
-      avgBuyPrice: { type: Number, required: true },
-      takeProfit: { type: Number }, // Optional, user may skip
-      stopLoss: { type: Number }    // Optional, user may skip
-    }
-  ]
+  isSubscribed: {
+    type: Boolean,
+    default: false
+  },
+  freeAITrials: {
+    type: Number,
+    default: 3
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', UserSchema);

@@ -1,25 +1,24 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') }); // Explicit path
+
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
+console.log("MONGO_URI:", process.env.MONGO_URI); // Debug
+
 const listUsers = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('Connected to MongoDB');
-    
-    const users = await User.find({}, 'email role');
-    console.log('Users in database:');
-    
-    if (users.length === 0) {
-      console.log('No users found in the database');
-    } else {
-      users.forEach(user => {
-        console.log(`Email: ${user.email}, Role: ${user.role}`);
-      });
-    }
-    
-    mongoose.disconnect();
-    console.log('Disconnected from MongoDB');
+    const uri = process.env.MONGO_URI;
+    if (!uri) throw new Error('MONGO_URI not found in .env');
+
+    await mongoose.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    const users = await User.find();
+    console.log('Users:', users);
+    await mongoose.disconnect();
   } catch (err) {
     console.error('Error listing users:', err);
   }

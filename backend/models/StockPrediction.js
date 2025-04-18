@@ -1,4 +1,4 @@
-const tf = require('@tensorflow/tfjs-node');
+const tf = require('@tensorflow/tfjs');
 
 async function predictStockPrice(historicalData) {
   const prices = historicalData.map(d => d.close);

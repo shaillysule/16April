@@ -3,7 +3,43 @@ const axios = require('axios');
 
 const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
 const DEFAULT_SYMBOLS = ['AAPL', 'TSLA', 'GOOGL', 'MSFT', 'AMZN', 'META'];
-
+// Add this function to your existing stockController.js
+exports.getMarketData = async (req, res) => {
+  try {
+    // Get top performing stocks
+    const stocks = await Stock.find().sort({ percentChange: -1 }).limit(5);
+    
+    // Get market sentiment
+    const sentiments = await Sentiment.find().sort({ timestamp: -1 }).limit(1);
+    const currentSentiment = sentiments.length > 0 ? sentiments[0].sentiment : 'neutral';
+    
+    // Get recent market trends
+    const trends = [
+      { name: 'Tech Sector', description: 'Growing after strong earnings' },
+      { name: 'Energy Stocks', description: 'Declining due to oversupply concerns' },
+      { name: 'Healthcare', description: 'Stable with slight upward movement' }
+    ];
+    
+    const topPerformers = stocks.map(stock => ({
+      symbol: stock.symbol,
+      price: stock.price,
+      change: stock.percentChange
+    }));
+    
+    res.json({
+      topPerformers,
+      marketSentiment: currentSentiment,
+      recentTrends: trends
+    });
+  } catch (error) {
+    console.error('Error fetching market data:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching market data',
+      error: error.message 
+    });
+  }
+};
 // Get list of stocks
 exports.getStocks = async (req, res) => {
   try {

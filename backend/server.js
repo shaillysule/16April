@@ -20,11 +20,11 @@ app.use(helmet());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 
 // Routes
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/api/auth');
 const learningRoutes = require('./routes/learning');
 const userRoutes = require('./routes/User');
 const paymentRoutes = require('./routes/subscription');
-const adminRoutes = require('./routes/adminRoutes');
+const adminRoutes = require('./routes/api/admin');
 const stockRoutes = require('./routes/stocks');
 const stockAltRoutes = require('./routes/stockRoutes'); // if different
 const chatbotRoutes = require('./routes/chatbot');
@@ -34,12 +34,13 @@ const portfolioRoutes = require('./routes/portfolioRoutes');
 app.use('/api/auth', authRoutes);
 app.use('/api/learning', learningRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/payment', paymentRoutes);
+app.use('/api/subscription', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/stocks', stockRoutes);       // Main stock route
 app.use('/api/stock-alt', stockAltRoutes); // If needed separately
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/chatbot', chatbotRoutes);
+
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
