@@ -1,4 +1,3 @@
-// auth.js
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -8,20 +7,25 @@ const router = express.Router();
 // Middleware for JWT Authentication
 const authMiddleware = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
+    const authHeader = req.headers['authorization'];
+    console.log('Auth header received:', authHeader); // Debug log
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ message: 'No token provided or invalid token format' });
     }
     const token = authHeader.split(' ')[1];
+    console.log('Token extracted:', token); // Debug log
+
+    // Verify the token
+    console.log('Attempting to verify token with JWT_SECRET:', process.env.JWT_SECRET); // Debug log
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Support both token formats
+    console.log('Decoded token:', decoded); // Debug log
+
+    // Extract user ID from the decoded token
     const userId = decoded.id || (decoded.user && decoded.user.id);
-    
     if (!userId) {
-      return res.status(401).json({ message: 'Invalid token format' });
+      return res.status(401).json({ message: 'Invalid token payload: no user ID found' });
     }
-    
+
     const user = await User.findById(userId).select('-password');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -29,8 +33,8 @@ const authMiddleware = async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    console.error('Auth error:', err);
-    res.status(401).json({ msg: 'Not authorized' });
+    console.error('Auth error - Token verification failed:', err.name, err.message, 'Full error:', err); // Enhanced debug log
+    res.status(401).json({ msg: `${err.name}: ${err.message}` }); // Return specific error
   }
 };
 
@@ -60,10 +64,7 @@ router.post('/signup', async (req, res) => {
 
     // Create token with consistent format
     const token = jwt.sign(
-      { 
-        id: user._id,
-        user: { id: user._id }
-      }, 
+      { id: user._id }, // Simplified payload to just id
       process.env.JWT_SECRET, 
       { expiresIn: '1h' }
     );
@@ -103,12 +104,9 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
-    // Use consistent token structure with both id and user: { id } for compatibility
+    // Create token with consistent format
     const token = jwt.sign(
-      { 
-        id: user._id,
-        user: { id: user._id }
-      }, 
+      { id: user._id }, // Simplified payload to just id
       process.env.JWT_SECRET, 
       { expiresIn: '1h' }
     );

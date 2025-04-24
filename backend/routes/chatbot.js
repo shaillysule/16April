@@ -1,12 +1,17 @@
+// backend/routes/chatbot.js
 const express = require('express');
 const router = express.Router();
-const chatbotController = require('../controllers/chatbotController');
-const auth = require('../middleware/auth'); // If you have authentication middleware
 
-// Route to ask questions to the chatbot
-router.post('/ask', auth, chatbotController.askQuestion);
-router.get('/history', auth, chatbotController.getHistory);
-router.post('/feedback', auth, chatbotController.recordFeedback);
+const { handleStockQuery } = require('../controllers/chatbotController');
+const { authenticateUser } = require('../middleware/auth'); // ✅ FIXED
+const enhanceWithStockData = require('../middleware/stockDataEnhancer');
 
+// Routes
+
+// Public stock chat
+router.post('/stock', enhanceWithStockData, handleStockQuery);
+
+// Personalized chat (requires login)
+router.post('/stock/personalized', authenticateUser, enhanceWithStockData, handleStockQuery); // ✅ FIXED
 
 module.exports = router;

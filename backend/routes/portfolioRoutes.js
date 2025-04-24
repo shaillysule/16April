@@ -1,35 +1,34 @@
-
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
+const { authenticateUser } = require('../middleware/auth');  // Ensure correct import of authenticateUser
 const Portfolio = require('../models/Portfolio');
 const { calculateRiskMetrics } = require('../utils/riskCalculator');
 
 // Update risk metrics for a portfolio
-router.post('/:portfolioId/update-risk', auth, async (req, res) => {
+router.post('/:portfolioId/update-risk', authenticateUser, async (req, res) => {
   try {
     let portfolio = await Portfolio.findById(req.params.portfolioId);
     
     if (!portfolio) {
       return res.status(404).json({ msg: 'Portfolio not found' });
     }
-    
-    // Check if the portfolio belongs to the user or user is admin
+
+    // Check if the portfolio belongs to the user or if the user is an admin
     if (portfolio.userId.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ msg: 'Not authorized' });
     }
-    
+
     // Calculate risk metrics
     const riskMetrics = await calculateRiskMetrics(portfolio);
-    
+
     if (!riskMetrics) {
       return res.status(500).json({ msg: 'Failed to calculate risk metrics' });
     }
-    
-    // Update portfolio with risk metrics
+
+    // Update portfolio with the calculated risk metrics
     portfolio.riskMetrics = riskMetrics;
     await portfolio.save();
-    
+
     res.json(portfolio);
   } catch (error) {
     console.error(error.message);
@@ -37,11 +36,8 @@ router.post('/:portfolioId/update-risk', auth, async (req, res) => {
   }
 });
 
-// Add other portfolio routes here
-// For example:
-
 // Get all portfolios for the current user
-router.get('/', auth, async (req, res) => {
+router.get('/', authenticateUser, async (req, res) => {
   try {
     const portfolios = await Portfolio.find({ userId: req.user.id });
     res.json(portfolios);
@@ -52,7 +48,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Create a new portfolio
-router.post('/', auth, async (req, res) => {
+router.post('/', authenticateUser, async (req, res) => {
   try {
     const { name, description, riskLevel } = req.body;
     
@@ -60,9 +56,9 @@ router.post('/', auth, async (req, res) => {
       userId: req.user.id,
       name,
       description,
-      riskLevel: riskLevel || 'moderate'
+      riskLevel: riskLevel || 'moderate'  // Default to 'moderate' risk level
     });
-    
+
     const portfolio = await newPortfolio.save();
     res.json(portfolio);
   } catch (error) {
@@ -72,19 +68,19 @@ router.post('/', auth, async (req, res) => {
 });
 
 // Get a specific portfolio
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', authenticateUser, async (req, res) => {
   try {
     const portfolio = await Portfolio.findById(req.params.id);
     
     if (!portfolio) {
       return res.status(404).json({ msg: 'Portfolio not found' });
     }
-    
-    // Check if the portfolio belongs to the user or user is admin
+
+    // Check if the portfolio belongs to the user or if the user is an admin
     if (portfolio.userId.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ msg: 'Not authorized' });
     }
-    
+
     res.json(portfolio);
   } catch (error) {
     console.error(error.message);
@@ -93,7 +89,7 @@ router.get('/:id', auth, async (req, res) => {
 });
 
 // Update a portfolio
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', authenticateUser, async (req, res) => {
   try {
     const { name, description, riskLevel } = req.body;
     
@@ -102,12 +98,12 @@ router.put('/:id', auth, async (req, res) => {
     if (!portfolio) {
       return res.status(404).json({ msg: 'Portfolio not found' });
     }
-    
-    // Check if the portfolio belongs to the user or user is admin
+
+    // Check if the portfolio belongs to the user or if the user is an admin
     if (portfolio.userId.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ msg: 'Not authorized' });
     }
-    
+
     // Update fields
     if (name) portfolio.name = name;
     if (description) portfolio.description = description;
@@ -123,19 +119,19 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 // Delete a portfolio
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', authenticateUser, async (req, res) => {
   try {
     const portfolio = await Portfolio.findById(req.params.id);
     
     if (!portfolio) {
       return res.status(404).json({ msg: 'Portfolio not found' });
     }
-    
-    // Check if the portfolio belongs to the user or user is admin
+
+    // Check if the portfolio belongs to the user or if the user is an admin
     if (portfolio.userId.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ msg: 'Not authorized' });
     }
-    
+
     await portfolio.remove();
     
     res.json({ msg: 'Portfolio removed' });

@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const User = require('../models/User');
 
-router.get('/user', auth, async (req, res) => {
+router.get('/user', auth.authenticateUser, async (req, res) => { // Fixed: Use auth.authenticateUser
     console.log('Request received for /user'); // Debug log
     console.log('req.user:', req.user); // Debug req.user
     try {

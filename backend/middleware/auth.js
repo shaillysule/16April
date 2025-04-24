@@ -1,50 +1,51 @@
+// middleware/auth.js
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
 
-module.exports = async function(req, res, next) {
+const authenticateUser = async (req, res, next) => {
   try {
-    // Get token from header
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
-    // Check if no token
-    if (!token) {
-      return res.status(401).json({ msg: 'No token, authorization denied' });
+    const authHeader = req.headers['authorization'];
+    console.log('Auth header received:', authHeader); // Debug log
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'No token provided or invalid token format' });
     }
-    
-    // Verify token with proper error handling
+    const token = authHeader.split(' ')[1];
+    console.log('Token extracted:', token); // Debug log
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Handle both token formats - new format has direct 'id' property,
-    // old format has 'user.id' property
+    console.log('Attempting to verify token with JWT_SECRET:', process.env.JWT_SECRET); // Debug log
+    console.log('Decoded token:', decoded); // Debug log
+
+    // Support both id and user.id in the token
     const userId = decoded.id || (decoded.user && decoded.user.id);
-    
     if (!userId) {
-      return res.status(401).json({ msg: 'Invalid token format' });
+      return res.status(401).json({ message: 'Invalid token format' });
     }
-    
-    // Find the user with the extracted ID
+
+    const User = require('../models/User'); // Adjust path based on your project structure
     const user = await User.findById(userId).select('-password');
-    
-    // Validate user exists in database
     if (!user) {
-      return res.status(401).json({ msg: 'User not found' });
+      return res.status(404).json({ message: 'User not found' });
     }
-    
-    // Set user info on request object
-    req.user = {
-      id: user._id,
-      name: user.name || '',
-      email: user.email,
-      role: user.role || 'user',
-      isSubscribed: user.subscriptionActive || user.isSubscribed || false
-    };
-    
-    // Debug log for troubleshooting
-    console.log(`Auth middleware: User ${user.email} authenticated with role ${user.role}`);
-    
+
+    req.user = user;
     next();
   } catch (err) {
-    console.error('Auth middleware error:', err);
-    res.status(401).json({ msg: 'Token is not valid' });
+    console.error('Token verification failed:', err.message, 'Full error:', err); // Debug log
+    res.status(500).json({ msg: `something wrong${err.name}: ${err.message}` });
   }
 };
+
+// Middleware to check if the user is an admin
+const isAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'User not authenticated' });
+  }
+
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied: Admin only' });
+  }
+
+  next();
+};
+
+module.exports = { authenticateUser, isAdmin };

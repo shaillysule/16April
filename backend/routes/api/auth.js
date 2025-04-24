@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../../controllers/authController');
-const auth = require('../../middleware/auth');
+const auth = require('../../middleware/auth'); // Ensure this points to the updated middleware/auth.js
 
 // All routes in this file have /api/auth prefix
 
@@ -17,6 +17,6 @@ router.post('/login', authController.loginUser);
 
 // Get authenticated user
 // GET /api/auth/me
-router.get('/me', auth, authController.getMe);
+router.get('/me', auth.authenticateUser, authController.getMe); // Already using auth.authenticateUser
 
 module.exports = router;
