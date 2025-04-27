@@ -1,21 +1,13 @@
-// backend/routes/stockRoutes.js
-
 const express = require('express');
 const router = express.Router();
-const { 
-  getStocks, 
-  getStockBySymbol, 
-  getStockHistory, 
-  getMarketIndices, 
-  getTrendingStocks 
-} = require('../controllers/stockController');
-const auth = require('../middleware/auth');
+const stockController = require('../controllers/stockController');
 
-// Base routes with authentication
-router.get('/', auth, getStocks);
-router.get('/:symbol', auth, getStockBySymbol);
-router.get('/:symbol/history', auth, getStockHistory);
-router.get('/stocks/indices/market', auth, getMarketIndices);
-router.get('/stocks/trending/stocks', auth, getTrendingStocks);
+// Stock routes
+router.get('/', stockController.getStocks);
+router.get('/indices/market', stockController.getMarketIndices);
+router.get('/trending/stocks', stockController.getTrendingStocks);
+router.get('/market-data', stockController.getMarketData);
+router.get('/:symbol', stockController.getStockBySymbol);
+router.get('/:symbol/history', stockController.getStockHistory);
 
 module.exports = router;

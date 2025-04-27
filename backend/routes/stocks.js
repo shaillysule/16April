@@ -3,6 +3,12 @@ const axios = require('axios');
 const router = express.Router();
 
 const ALPHA_VANTAGE_API_KEY = process.env.ALPHA_VANTAGE_API_KEY; // Store your API key in environment variables
+router.get('/', (req, res) => {
+  res.json([
+    { symbol: 'AAPL', price: 150 },
+    { symbol: 'GOOGL', price: 2800 },
+  ]);
+});
 
 router.get('/api/stocks/:symbol', async (req, res) => {
   const symbol = req.params.symbol.toUpperCase();

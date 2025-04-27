@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -12,10 +11,12 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-// Fix for helmet issue
 app.use(helmet());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 
@@ -25,8 +26,7 @@ const learningRoutes = require('./routes/learning');
 const userRoutes = require('./routes/User');
 const paymentRoutes = require('./routes/subscription');
 const adminRoutes = require('./routes/api/admin');
-const stockRoutes = require('./routes/stocks');
-const stockAltRoutes = require('./routes/stockRoutes'); // if different
+const stockRoutes = require('./routes/stockRoutes');
 const chatbotRoutes = require('./routes/chatbot');
 const portfolioRoutes = require('./routes/portfolioRoutes');
 
@@ -36,24 +36,26 @@ app.use('/api/learning', learningRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/subscription', paymentRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/stocks', stockRoutes);       // Main stock route
-app.use('/api/stock-alt', stockAltRoutes); // If needed separately
+app.use('/api/stocks', stockRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 
-
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
-  // Set static folder
   app.use(express.static('client/build'));
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
   });
 }
+
 console.log("API Key loaded:", process.env.ALPHA_VANTAGE_API_KEY ? "Yes" : "No");
+const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
+
 // Default route
 app.get('/', (req, res) => {
-  res.send('🚀 API is running...');
+  res.send('🚀 API is running.123..');
+  console.log("hello");
+  console.log(API_KEY);
 });
 
 // Error handling middleware

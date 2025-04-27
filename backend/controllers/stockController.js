@@ -1,45 +1,8 @@
-// backend/controllers/stockController.js
 const axios = require('axios');
 
 const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
 const DEFAULT_SYMBOLS = ['AAPL', 'TSLA', 'GOOGL', 'MSFT', 'AMZN', 'META'];
-// Add this function to your existing stockController.js
-exports.getMarketData = async (req, res) => {
-  try {
-    // Get top performing stocks
-    const stocks = await Stock.find().sort({ percentChange: -1 }).limit(5);
-    
-    // Get market sentiment
-    const sentiments = await Sentiment.find().sort({ timestamp: -1 }).limit(1);
-    const currentSentiment = sentiments.length > 0 ? sentiments[0].sentiment : 'neutral';
-    
-    // Get recent market trends
-    const trends = [
-      { name: 'Tech Sector', description: 'Growing after strong earnings' },
-      { name: 'Energy Stocks', description: 'Declining due to oversupply concerns' },
-      { name: 'Healthcare', description: 'Stable with slight upward movement' }
-    ];
-    
-    const topPerformers = stocks.map(stock => ({
-      symbol: stock.symbol,
-      price: stock.price,
-      change: stock.percentChange
-    }));
-    
-    res.json({
-      topPerformers,
-      marketSentiment: currentSentiment,
-      recentTrends: trends
-    });
-  } catch (error) {
-    console.error('Error fetching market data:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error fetching market data',
-      error: error.message 
-    });
-  }
-};
+
 // Get list of stocks
 exports.getStocks = async (req, res) => {
   try {
@@ -114,6 +77,7 @@ exports.getStockBySymbol = async (req, res) => {
     const overviewResponse = await axios.get(
       `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=${API_KEY}`
     );
+    
     const overview = overviewResponse.data;
 
     // Get current quote
@@ -235,11 +199,17 @@ exports.getStockHistory = async (req, res) => {
   }
 };
 
-// Get market indices (might need a different data source)
+// Get market indices
 exports.getMarketIndices = async (req, res) => {
   try {
-  
-    const indices = await fetchIndicesData();
+    // Providing mock data since Alpha Vantage might not directly provide indices data
+    const indices = [
+      { symbol: 'NIFTY 50', price: '22,055.18', changePercent: '+0.53%' },
+      { symbol: 'SENSEX', price: '72,643.21', changePercent: '+0.42%' },
+      { symbol: 'BANKNIFTY', price: '47,250.35', changePercent: '+0.76%' },
+      { symbol: 'NASDAQ', price: '16,432.86', changePercent: '-0.31%' }
+    ];
+    
     res.json(indices);
   } catch (err) {
     console.error('Market indices fetch failed:', err.message);
@@ -263,5 +233,40 @@ exports.getTrendingStocks = async (req, res) => {
   } catch (err) {
     console.error('Trending stocks fetch failed:', err.message);
     res.status(500).json({ error: 'Failed to fetch trending stocks' });
+  }
+};
+
+// Get market data
+exports.getMarketData = async (req, res) => {
+  try {
+    // Providing mock data since we don't have the actual database models
+    const topPerformers = [
+      { symbol: 'AAPL', price: '189.34', change: '1.5%' },
+      { symbol: 'TSLA', price: '765.23', change: '2.3%' },
+      { symbol: 'AMZN', price: '3150.00', change: '1.2%' },
+      { symbol: 'MSFT', price: '234.12', change: '0.7%' },
+      { symbol: 'META', price: '465.78', change: '3.1%' }
+    ];
+    
+    const currentSentiment = 'bullish';
+    
+    const trends = [
+      { name: 'Tech Sector', description: 'Growing after strong earnings' },
+      { name: 'Energy Stocks', description: 'Declining due to oversupply concerns' },
+      { name: 'Healthcare', description: 'Stable with slight upward movement' }
+    ];
+    
+    res.json({
+      topPerformers,
+      marketSentiment: currentSentiment,
+      recentTrends: trends
+    });
+  } catch (error) {
+    console.error('Error fetching market data:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching market data',
+      error: error.message 
+    });
   }
 };
