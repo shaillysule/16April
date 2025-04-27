@@ -145,11 +145,20 @@ const Dashboard = () => {
             <Link to="/analytics" className="block p-3 rounded-md hover:bg-gray-200">
              analytics
             </Link>
+            <Link to="/learning" className="block p-3 rounded-md hover:bg-gray-200">Learning</Link>
             {userRole === "admin" && (
-              <Link to="/admin" className="block p-3 rounded-md hover:bg-gray-200 text-red-600">
-                Admin Panel
-              </Link>
-            )}
+      <div className="border-t border-gray-300 pt-4">
+        <p className="text-sm font-semibold text-red-600 px-3 mb-2 flex items-center">
+          <i className="fas fa-user-shield mr-2"></i> Admin Tools
+        </p>
+        <Link to="/admin" className="block p-2 pl-4 rounded-md text-red-600 hover:bg-red-100">
+          Admin Panel
+        </Link>
+        <Link to="/admin/learning" className="block p-2 pl-4 rounded-md text-red-600 hover:bg-red-100">
+          Manage Learning
+        </Link>
+      </div>
+    )}
           </nav>
         </div>
         <div className="p-6">

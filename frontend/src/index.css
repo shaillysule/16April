@@ -22,3 +22,50 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+/* Add to your existing admin CSS file */
+
+/* Learning module stats styling */
+.learning-stats {
+  background-color: #e1f5fe;
+  border-left: 4px solid #03a9f4;
+}
+
+.stats-content {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 0 10px;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #0277bd;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+/* Learning module admin styling */
+.learning-module-admin h1 {
+  margin-bottom: 20px;
+}
+
+.section-form, .quiz-form {
+  background-color: #f9f9f9;
+  margin-bottom: 15px;
+  border-radius: 5px;
+}
+
+.form-actions {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}

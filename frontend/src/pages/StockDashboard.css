@@ -1,0 +1,18 @@
+/* pages/StockDashboard.css */
+body {
+    background-color: #1a1a1a;
+    color: #fff;
+  }
+  h2, h3, p {
+    color: #fff;
+  }
+  div {
+    border-color: #333;
+  }
+  button {
+    background-color: #1e90ff;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+  }

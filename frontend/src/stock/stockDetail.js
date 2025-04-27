@@ -1,4 +1,3 @@
-// pages/stock/StockDetail.js
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -8,7 +7,7 @@ const StockDetail = () => {
   const navigate = useNavigate();
   const [stock, setStock] = useState({});
   const [chartData, setChartData] = useState({ dates: [], prices: [] });
-  const [interval, setInterval] = useState('daily'); // daily, weekly, monthly
+  const [interval, setInterval] = useState('daily');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [takeProfit, setTakeProfit] = useState("");
@@ -22,19 +21,18 @@ const StockDetail = () => {
         if (!token) {
           setError('Authentication required. Please log in.');
           setLoading(false);
+          navigate('/');
           return;
         }
 
         const headers = {
-          Authorization: `Bearer ${token}`
+          'x-auth-token': token
         };
 
-        // Fetch stock details
-        const stockResponse = await axios.get(`/api/stocks/${symbol}`, { headers });
+        const stockResponse = await axios.get(`http://localhost:5000/api/stocks/${symbol}`, { headers });
         setStock(stockResponse.data || {});
 
-        // Fetch stock history for chart
-        const historyResponse = await axios.get(`/api/stocks/${symbol}/history?interval=${interval}`, { headers });
+        const historyResponse = await axios.get(`http://localhost:5000/api/stocks/${symbol}/history?interval=${interval}`, { headers });
         setChartData({
           dates: historyResponse.data.dates || [],
           prices: historyResponse.data.prices || [],
@@ -45,12 +43,16 @@ const StockDetail = () => {
       } catch (error) {
         console.error("Error fetching stock details:", error);
         setError(error.response?.data?.error || 'Failed to load stock data');
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          navigate('/');
+        }
         setLoading(false);
       }
     };
 
     fetchStockDetail();
-  }, [symbol, interval]);
+  }, [symbol, interval, navigate]);
 
   const handleBuyStock = async () => {
     try {
@@ -62,11 +64,12 @@ const StockDetail = () => {
       const token = localStorage.getItem("token");
       if (!token) {
         setError('Authentication required. Please log in.');
+        navigate('/');
         return;
       }
 
       const response = await axios.post(
-        "/api/portfolio/buy",
+        "http://localhost:5000/api/portfolio/buy",
         {
           symbol,
           price: stock.latestPrice,
@@ -75,7 +78,7 @@ const StockDetail = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            'x-auth-token': token,
           },
         }
       );
@@ -84,29 +87,31 @@ const StockDetail = () => {
     } catch (error) {
       console.error("Error buying stock:", error);
       setError(error.response?.data?.error || 'Failed to buy stock');
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/');
+      }
     }
   };
 
   const handleRefresh = () => {
-    // Function to refresh the stock data
     const fetchStockDetail = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
           setError('Authentication required. Please log in.');
+          navigate('/');
           return;
         }
 
         const headers = {
-          Authorization: `Bearer ${token}`
+          'x-auth-token': token
         };
 
-        // Fetch stock details
-        const stockResponse = await axios.get(`/api/stocks/${symbol}`, { headers });
+        const stockResponse = await axios.get(`http://localhost:5000/api/stocks/${symbol}`, { headers });
         setStock(stockResponse.data || {});
 
-        // Fetch stock history for chart
-        const historyResponse = await axios.get(`/api/stocks/${symbol}/history?interval=${interval}`, { headers });
+        const historyResponse = await axios.get(`http://localhost:5000/api/stocks/${symbol}/history?interval=${interval}`, { headers });
         setChartData({
           dates: historyResponse.data.dates || [],
           prices: historyResponse.data.prices || [],
@@ -116,13 +121,16 @@ const StockDetail = () => {
       } catch (error) {
         console.error("Error refreshing stock details:", error);
         setError(error.response?.data?.error || 'Failed to refresh stock data');
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          navigate('/');
+        }
       }
     };
 
     fetchStockDetail();
   };
 
-  // Custom Line Chart Component
   const LineChart = ({ data, labels }) => {
     if (!data || data.length === 0) return <div>No chart data available</div>;
 
@@ -130,15 +138,12 @@ const StockDetail = () => {
     const height = 300;
     const padding = 40;
     
-    // Calculate min and max for scaling
     const minValue = Math.min(...data);
     const maxValue = Math.max(...data);
     
-    // Scale data points to fit in the chart area
     const getX = (index) => padding + (index * (width - 2 * padding)) / (data.length - 1);
     const getY = (value) => height - padding - ((value - minValue) * (height - 2 * padding)) / (maxValue - minValue);
     
-    // Create the path for the line
     let path = "";
     data.forEach((value, index) => {
       if (index === 0) {
@@ -150,15 +155,12 @@ const StockDetail = () => {
 
     return (
       <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet">
-        {/* Grid lines */}
         <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#444" strokeWidth="1" />
         <line x1={padding} y1={height - padding} x2={padding} y2={padding} stroke="#444" strokeWidth="1" />
         
-        {/* Y-axis labels */}
         <text x={padding - 10} y={padding} textAnchor="end" fill="#aaa" fontSize="12">{maxValue.toFixed(2)}</text>
         <text x={padding - 10} y={height - padding} textAnchor="end" fill="#aaa" fontSize="12">{minValue.toFixed(2)}</text>
         
-        {/* X-axis labels (show first, middle and last date) */}
         {labels && labels.length > 0 && (
           <>
             <text x={padding} y={height - padding + 20} textAnchor="middle" fill="#aaa" fontSize="12">{labels[0]}</text>
@@ -185,10 +187,7 @@ const StockDetail = () => {
           </>
         )}
         
-        {/* Line */}
         <path d={path} fill="none" stroke="#4CAF50" strokeWidth="2" />
-        
-        {/* Data points */}
         {data.map((value, index) => (
           <circle 
             key={index} 
@@ -212,7 +211,6 @@ const StockDetail = () => {
 
   return (
     <div className="p-6 bg-black text-white min-h-screen">
-      {/* Header with navigation */}
       <div className="flex items-center mb-6">
         <button onClick={() => navigate(-1)} className="mr-4">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -227,24 +225,16 @@ const StockDetail = () => {
         </button>
       </div>
 
-      {/* Price and change */}
       <div className="mb-6">
         <div className="flex items-baseline">
           <h2 className="text-4xl font-bold">₹{stock.latestPrice || '0.00'}</h2>
-          <p className={`ml-3 text-lg ${
-            parseFloat(stock.changePercent) > 0 
-              ? 'text-green-400' 
-              : parseFloat(stock.changePercent) < 0 
-                ? 'text-red-400' 
-                : 'text-gray-400'
-          }`}>
+          <p className={`ml-3 text-lg ${parseFloat(stock.changePercent) > 0 ? 'text-green-400' : parseFloat(stock.changePercent) < 0 ? 'text-red-400' : 'text-gray-400'}`}>
             {stock.changePercent || '0.00%'}
           </p>
         </div>
         <p className="text-sm text-gray-400 mt-1">Last updated: {new Date().toLocaleTimeString()}</p>
       </div>
 
-      {/* Chart Section */}
       <div className="bg-gray-900 p-4 rounded-lg mb-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">Price History</h3>
@@ -272,7 +262,6 @@ const StockDetail = () => {
         <LineChart data={chartData.prices} labels={chartData.dates} />
       </div>
 
-      {/* TP / SL Section */}
       <div className="bg-gray-900 p-4 rounded-lg mb-6">
         <h3 className="text-lg font-semibold mb-2">Set TP / SL</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -299,7 +288,6 @@ const StockDetail = () => {
         </div>
       </div>
 
-      {/* Stock Info Section */}
       <div className="bg-gray-900 p-4 rounded-lg mb-6">
         <h3 className="text-xl font-semibold mb-2">Performance</h3>
         <div className="grid grid-cols-2 gap-y-2">
@@ -326,7 +314,6 @@ const StockDetail = () => {
         </div>
       </div>
 
-      {/* Company info */}
       <div className="bg-gray-900 p-4 rounded-lg mb-6">
         <h3 className="text-xl font-semibold mb-2">About {stock.name || symbol}</h3>
         <div className="mb-3">
@@ -343,7 +330,6 @@ const StockDetail = () => {
         </div>
       </div>
 
-      {/* Buy Button */}
       <div className="flex justify-center">
         <button
           onClick={handleBuyStock}
